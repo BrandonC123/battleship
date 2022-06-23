@@ -6,7 +6,7 @@ test("ship has been placed!", () => {
             {
                 length: 3,
                 hitList: [],
-                sunk: false,
+                sunk: true,
                 placement: [],
             },
             [3, 3]
@@ -20,5 +20,9 @@ test("attack successful!", () => {
 
 test("attack not successful!", () => {
     expect(gameBoard.receiveAttack([4,1])).not.toBeTruthy()
+})
+
+test("all ships sunk!", () => {
+    expect(gameBoard.checkAllShips()).toBeTruthy()
 })
 

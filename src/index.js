@@ -35,6 +35,7 @@ const GameBoard = () => {
     let shipList = [
         {
             name: "destroyer",
+            sunk: true,
             placement: [
                 [4, 3],
                 [4, 4],
@@ -57,9 +58,9 @@ const GameBoard = () => {
             return gameBoardArray[coordinate[0] - 1];
         },
         receiveAttack(coordinate) {
-            try {
-                const coordinateTest =
-                    gameBoardArray[coordinate[0] - 1][coordinate[1] - 1];
+            const coordinateTest =
+                gameBoardArray[coordinate[0] - 1][coordinate[1] - 1];
+            if (coordinateTest.length !== 0) {
                 if (
                     JSON.stringify(coordinateTest) ===
                     JSON.stringify(coordinate)
@@ -67,22 +68,35 @@ const GameBoard = () => {
                     let index;
                     for (let i = 0; i < shipList.length; i++) {
                         shipList[i].placement.forEach((coord) => {
-                            if (  JSON.stringify(coord) ===
-                            JSON.stringify(coordinate)) {
-                                index = i
+                            if (
+                                JSON.stringify(coord) ===
+                                JSON.stringify(coordinate)
+                            ) {
+                                index = i;
                             }
-                        })
+                        });
                     }
-                    shipList[index].hitList.push(coordinate)
-                    console.log(shipList[index])
+                    shipList[index].hitList.push(coordinate);
                     return true;
                 }
-            } catch {
+            } else {
                 missedAttackList.push(coordinate);
                 return false;
             }
         },
-        checkAllShips() {},
+        checkAllShips() {
+            let counter = 0;
+            shipList.forEach((ship) => {
+                if (ship.sunk) {
+                    counter++;
+                }
+            });
+            if (counter === shipList.length) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         missedAttackList,
     };
 };
@@ -96,3 +110,4 @@ module.exports.isSunk = testShip.isSunk;
 
 module.exports.placeShip = testGameBoard.placeShip;
 module.exports.receiveAttack = testGameBoard.receiveAttack;
+module.exports.checkAllShips = testGameBoard.checkAllShips;
