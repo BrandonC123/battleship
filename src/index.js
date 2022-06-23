@@ -3,6 +3,7 @@ function ship(length, hitList, sunk) {
         length: length,
         hitList: hitList,
         sunk: sunk,
+        placement: [],
         hit(coordinate) {
             hitList.push(coordinate);
             return hitList;
@@ -24,12 +25,22 @@ const GameBoard = () => {
         [[], [], [], [], [], [], [], [], [], []],
         [[], [], [], [], [], [], [], [], [], []],
         [[], [], [], [], [], [], [], [], [], []],
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
+        [[], [], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], [], []],
+    ];
+    let shipList = [
+        {
+            name: "destroyer",
+            placement: [
+                [4, 3],
+                [4, 4],
+                [4, 5],
+            ],
+        },
     ];
     let missedAttackList = [];
     return {
@@ -40,7 +51,9 @@ const GameBoard = () => {
                     coordinate[0],
                     coordinate[1] + i,
                 ];
+                ship.placement.push([coordinate[0], coordinate[1] + i]);
             }
+            shipList.push(ship);
             return gameBoardArray[coordinate[0] - 1];
         },
         receiveAttack(coordinate) {
@@ -51,18 +64,31 @@ const GameBoard = () => {
                     JSON.stringify(coordinateTest) ===
                     JSON.stringify(coordinate)
                 ) {
+                    let index;
+                    for (let i = 0; i < shipList.length; i++) {
+                        shipList[i].placement.forEach((coord) => {
+                            if (  JSON.stringify(coord) ===
+                            JSON.stringify(coordinate)) {
+                                index = i
+                            }
+                        })
+                    }
+                    shipList[index].hitList.push(coordinate)
+                    console.log(shipList[index])
                     return true;
                 }
             } catch {
-                missedAttackList.push(coordinate)
+                missedAttackList.push(coordinate);
                 return false;
             }
         },
+        checkAllShips() {},
         missedAttackList,
     };
 };
 
 let testShip = ship(3, [], false);
+// console.log(testShip)
 let testGameBoard = GameBoard();
 
 module.exports.hit = testShip.hit;
