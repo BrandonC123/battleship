@@ -128,6 +128,15 @@ const displayHandler = (() => {
         let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
         cells[index].style.backgroundColor = color;
     }
+    function fillAttackCell(player, coordinate) {
+        if (player.playerGameBoard.receiveAttack(coordinate)) {
+            fillCell(player.name, coordinate, 0, "red");
+            displayMessage("Hit!");
+        } else {
+            fillCell(player.name, coordinate, 0, "blue");
+        }
+    }
+    // Event listener to attack cells
     function addAttackEventListener(player2) {
         const enemyCells = document.querySelectorAll(
             `.${player2.name}-gameboard-cell`
@@ -136,16 +145,19 @@ const displayHandler = (() => {
             enemyCells[i].addEventListener("click", () => {
                 console.log(i);
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
-                if (player2.playerGameBoard.receiveAttack(coordinate)) {
-                    fillCell(player2.name, coordinate, 0, "red");
-                    displayMessage("Hit!");
-                } else {
-                    fillCell(player2.name, coordinate, 0, "blue");
-                }
+                fillAttackCell(player2, coordinate);
                 console.log(player2);
+                toggleGameBoard(player2.name);
                 setTimeout(() => gameHandler.gameLoop(), 2000);
             });
         }
+    }
+    // Disable attacking gameboard when not player's turn
+    function toggleGameBoard(playerName) {
+        let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
+        cells.forEach((cell) => {
+            cell.classList.toggle("inactive-cell");
+        });
     }
     function displayMessage(message) {
         const messageBar = document.querySelector(".message-bar-content");
@@ -154,7 +166,9 @@ const displayHandler = (() => {
     return {
         generateGameBoard,
         fillCell,
+        fillAttackCell,
         addAttackEventListener,
+        toggleGameBoard,
         displayMessage,
     };
 })();
@@ -185,13 +199,10 @@ const gameHandler = (() => {
     function gameLoop() {
         if (!player1Turn) {
             let aiAttack = player2.generateAttack();
-            if (player1.playerGameBoard.receiveAttack(aiAttack)) {
-                displayHandler.fillCell(player1.name, aiAttack, 0, "red");
-            } else {
-                displayHandler.fillCell(player1.name, aiAttack, 0, "blue");
-            }
+            displayHandler.fillAttackCell(player1, aiAttack);
             console.log(aiAttack);
             player1Turn = true;
+            displayHandler.toggleGameBoard(player2Name);
         }
         if (player2.playerGameBoard.checkAllShips()) {
             console.log("game over!");
