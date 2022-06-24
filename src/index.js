@@ -46,12 +46,13 @@ const GameBoard = () => {
     let missedAttackList = [];
     return {
         gameBoardArray,
-        placeShip(ship, coordinate) {
+        placeShip(playerName, ship, coordinate) {
             for (let i = 0; i < ship.length; i++) {
                 gameBoardArray[coordinate[0] - 1][coordinate[1] - 1 + i] = [
                     coordinate[0],
                     coordinate[1] + i,
                 ];
+                displayHandler.fillShipCell(playerName, coordinate, i);
                 ship.placement.push([coordinate[0], coordinate[1] + i]);
             }
             shipList.push(ship);
@@ -100,6 +101,82 @@ const GameBoard = () => {
         missedAttackList,
     };
 };
+
+function player(name, playerGameBoard) {
+    function generateAttack() {
+        const coord1 = Math.floor(Math.random() * 10 + 1);
+        const coord2 = Math.floor(Math.random() * 10 + 1);
+        return [coord1, coord2];
+    }
+    return {
+        name: name,
+        playerGameBoard: playerGameBoard,
+    };
+}
+
+const displayHandler = (() => {
+    function generateGameBoard(player) {
+        const gameBoard = document.createElement("div");
+        gameBoard.classList.add("gameboard");
+        for (let i = 0; i < 100; i++) {
+            const gameBoardCell = document.createElement("div");
+            gameBoardCell.classList.add(
+                player + "-gameboard-cell",
+                "gameboard-cell"
+            );
+            gameBoard.appendChild(gameBoardCell);
+        }
+        document.querySelector(".gameboards-container").appendChild(gameBoard);
+    }
+    function fillShipCell(playerName, coordinate, i) {
+        let index = (coordinate[0] - 1) * 10 + (coordinate[1] + i - 1);
+        let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
+        cells[index].style.backgroundColor = "gray";
+    }
+    return {
+        generateGameBoard,
+        fillShipCell,
+    };
+})();
+
+const gameLoop = (() => {
+    function newGame(player1Name, player2Name) {
+        let player1 = player(player1Name, GameBoard());
+        let player2 = player(player2Name, GameBoard());
+
+        displayHandler.generateGameBoard("brandon");
+        displayHandler.generateGameBoard("ai");
+        player1.playerGameBoard.placeShip(
+            player1Name,
+            ship(5, [], false),
+            [4, 2]
+        );
+        player1.playerGameBoard.placeShip(
+            player1Name,
+            ship(4, [], false),
+            [1, 1]
+        );
+        player1.playerGameBoard.placeShip(
+            player1Name,
+            ship(4, [], false),
+            [8, 5]
+        );
+        player1.playerGameBoard.placeShip(
+            player1Name,
+            ship(3, [], false),
+            [6, 2]
+        );
+        player1.playerGameBoard.placeShip(
+            player1Name,
+            ship(2, [], false),
+            [3, 7]
+        );
+
+        console.log(player1);
+        console.log(player2);
+    }
+    newGame("brandon", "ai");
+})();
 
 let testShip = ship(3, [], false);
 // console.log(testShip)
