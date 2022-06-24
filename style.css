@@ -55,3 +55,7 @@ img {
     min-height: 15px;
     min-width: 15px;
 }
+
+.inactive-cell {
+    pointer-events: none;
+}
