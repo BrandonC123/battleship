@@ -78,6 +78,7 @@ const GameBoard = () => {
                         });
                     }
                     shipList[index].hitList.push(coordinate);
+                    console.log(shipList);
                     return true;
                 }
             } else {
@@ -133,9 +134,24 @@ const displayHandler = (() => {
         let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
         cells[index].style.backgroundColor = "gray";
     }
+    function addAttackEventListener(player2) {
+        const enemyCells = document.querySelectorAll(
+            `.${player2.name}-gameboard-cell`
+        );
+        for (let i = 0; i < enemyCells.length; i++) {
+            enemyCells[i].addEventListener("click", () => {
+                console.log(i);
+                const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
+                console.log(coordinate);
+                player2.playerGameBoard.receiveAttack(coordinate);
+                console.log(player2);
+            });
+        }
+    }
     return {
         generateGameBoard,
         fillShipCell,
+        addAttackEventListener,
     };
 })();
 
@@ -171,6 +187,33 @@ const gameLoop = (() => {
             ship(2, [], false),
             [3, 7]
         );
+
+        player2.playerGameBoard.placeShip(
+            player2Name,
+            ship(5, [], false),
+            [4, 2]
+        );
+        player2.playerGameBoard.placeShip(
+            player2Name,
+            ship(4, [], false),
+            [1, 1]
+        );
+        player2.playerGameBoard.placeShip(
+            player2Name,
+            ship(4, [], false),
+            [8, 5]
+        );
+        player2.playerGameBoard.placeShip(
+            player2Name,
+            ship(3, [], false),
+            [6, 2]
+        );
+        player2.playerGameBoard.placeShip(
+            player2Name,
+            ship(2, [], false),
+            [3, 7]
+        );
+        displayHandler.addAttackEventListener(player2);
 
         console.log(player1);
         console.log(player2);
