@@ -42,7 +42,7 @@ const GameBoard = () => {
                     coordinate[0],
                     coordinate[1] + i,
                 ];
-                displayHandler.fillShipCell(playerName, coordinate, i);
+                displayHandler.fillCell(playerName, coordinate, i, "gray");
                 ship.placement.push([coordinate[0], coordinate[1] + i]);
             }
             shipList.push(ship);
@@ -123,10 +123,10 @@ const displayHandler = (() => {
         }
         document.querySelector(".gameboards-container").appendChild(gameBoard);
     }
-    function fillShipCell(playerName, coordinate, i) {
+    function fillCell(playerName, coordinate, i, color) {
         let index = (coordinate[0] - 1) * 10 + (coordinate[1] + i - 1);
         let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
-        cells[index].style.backgroundColor = "gray";
+        cells[index].style.backgroundColor = color;
     }
     function addAttackEventListener(player2) {
         const enemyCells = document.querySelectorAll(
@@ -136,16 +136,26 @@ const displayHandler = (() => {
             enemyCells[i].addEventListener("click", () => {
                 console.log(i);
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
-                player2.playerGameBoard.receiveAttack(coordinate);
+                if (player2.playerGameBoard.receiveAttack(coordinate)) {
+                    fillCell(player2.name, coordinate, 0, "red");
+                    displayMessage("Hit!");
+                } else {
+                    fillCell(player2.name, coordinate, 0, "blue");
+                }
                 console.log(player2);
-                gameHandler.gameLoop();
+                setTimeout(() => gameHandler.gameLoop(), 2000);
             });
         }
     }
+    function displayMessage(message) {
+        const messageBar = document.querySelector(".message-bar-content");
+        messageBar.textContent = message;
+    }
     return {
         generateGameBoard,
-        fillShipCell,
+        fillCell,
         addAttackEventListener,
+        displayMessage,
     };
 })();
 
@@ -171,11 +181,16 @@ const gameHandler = (() => {
     player2.playerGameBoard.placeShip(player2Name, ship(3, [], false), [6, 2]);
     player2.playerGameBoard.placeShip(player2Name, ship(2, [], false), [9, 7]);
 
-    let player1Turn = true;
+    let player1Turn = false;
     function gameLoop() {
         if (!player1Turn) {
             let aiAttack = player2.generateAttack();
-            player1.playerGameBoard.receiveAttack(aiAttack)
+            if (player1.playerGameBoard.receiveAttack(aiAttack)) {
+                displayHandler.fillCell(player1.name, aiAttack, 0, "red");
+            } else {
+                displayHandler.fillCell(player1.name, aiAttack, 0, "blue");
+            }
+            console.log(aiAttack);
             player1Turn = true;
         }
         if (player2.playerGameBoard.checkAllShips()) {
