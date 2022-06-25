@@ -8,12 +8,21 @@
         <title>Document</title>
     </head>
     <body>
-        <header class="header">Battleship</header>
+        <header class="header">
+            <img class="header-logo" src="../img/header-logo.png" alt="" />
+        </header>
         <div class="overall-container container">
             <div class="message-bar">
                 <h3 class="message-bar-content">Game Start</h3>
             </div>
-            <div class="gameboards-container row"></div>
+            <div class="gameboards-container">
+                <input
+                    class="gameboard-name-input"
+                    type="text"
+                    placeholder="Player 1 Name"
+                />
+                <input class="gameboard-name-input" type="text" value="AI" />
+            </div>
         </div>
         <script src="main.js"></script>
     </body>
