@@ -32,7 +32,13 @@ const GameBoard = () => {
         [[], [], [], [], [], [], [], [], [], []],
         [[], [], [], [], [], [], [], [], [], []],
     ];
-    let shipList = [];
+    let shipList = [
+        ship(5, [], false),
+        ship(4, [], false),
+        ship(3, [], false),
+        ship(3, [], false),
+        ship(2, [], false),
+    ];
     let missedAttackList = [];
     return {
         gameBoardArray,
@@ -45,7 +51,6 @@ const GameBoard = () => {
                 displayHandler.fillCell(playerName, coordinate, i, "gray");
                 ship.placement.push([coordinate[0], coordinate[1] + i]);
             }
-            shipList.push(ship);
             return gameBoardArray[coordinate[0] - 1];
         },
         receiveAttack(coordinate) {
@@ -93,6 +98,7 @@ const GameBoard = () => {
             }
         },
         missedAttackList,
+        shipList,
     };
 };
 
@@ -115,6 +121,37 @@ const displayHandler = (() => {
             document.getElementById("player1-name-input").value;
         document.getElementById("start-card").classList.toggle("hide");
         return document.getElementById("player1-name-input").value;
+    }
+    function toggleHoverCell(player, count) {
+        console.log(player);
+        const ship = player.playerGameBoard.shipList[count];
+        console.log(ship)
+        let cells = document.querySelectorAll(".brandon-gameboard-cell");
+        for (let i = 0; i < cells.length; i++) {
+            cells[i].addEventListener("mouseover", () => {
+                for (let j = 0; j < ship.length; j++) {
+                    if ((i + 2) % 10 !== 0) {
+                        cells[i + j].classList.toggle("hover-cell");
+                    }
+                }
+            });
+            cells[i].addEventListener("mouseout", () => {
+                for (let j = 0; j < ship.length; j++) {
+                    if ((i + 2) % 10 !== 0) {
+                        cells[i + j].classList.toggle("hover-cell");
+                    }
+                }
+            });
+            cells[i].addEventListener("click", () => {
+                const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
+                player.playerGameBoard.placeShip(
+                    player.name,
+                    player.playerGameBoard.shipList[count],
+                    coordinate
+                );
+                toggleHoverCell(player, ++count)
+            });
+        }
     }
     function generateGameBoard(player) {
         const gameBoard = document.createElement("div");
@@ -192,6 +229,7 @@ const displayHandler = (() => {
     return {
         inputPlayerName,
         generateGameBoard,
+        toggleHoverCell,
         fillCell,
         fillAttackCell,
         addAttackEventListener,
@@ -203,15 +241,17 @@ const displayHandler = (() => {
 const gameHandler = (() => {
     let player1;
     let player2;
-    document.getElementById("start-btn").addEventListener("click", () => {
-        let player1Name = displayHandler.inputPlayerName();
-        player1 = player(player1Name, GameBoard());
-        displayHandler.generateGameBoard(player1Name);
-        player2 = player("AI", GameBoard());
+    // document.getElementById("start-btn").addEventListener("click", () => {
+    //     let player1Name = displayHandler.inputPlayerName();
+    let player1Name = "brandon";
+    player1 = player(player1Name, GameBoard());
+    displayHandler.generateGameBoard(player1Name);
+    displayHandler.toggleHoverCell(player1, 0);
+    player2 = player("AI", GameBoard());
 
-        displayHandler.generateGameBoard(player2.name);
-        displayHandler.addAttackEventListener(player2);
-    });
+    displayHandler.generateGameBoard(player2.name);
+    displayHandler.addAttackEventListener(player2);
+    // });
 
     let player1Turn = false;
     function gameLoop() {
