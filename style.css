@@ -2,6 +2,9 @@ html,
 body {
     margin: 0;
     padding: 0;
+}
+
+html, body {
     height: 100%;
 }
 
@@ -28,26 +31,53 @@ img {
     flex-direction: column;
 }
 
-.overall-container {
+.header {
+    height: 10%;
+    text-align: center;
+    background-color: rgb(34, 34, 221);
+    padding: 1em 0;
+    margin-bottom: 2em;
+}
+
+.header-logo {
     height: 100%;
+    min-height: 35px;
+}
+
+.overall-container {
+    height: 80%;
 }
 
 .message-bar {
+    margin: 0 auto;
     border: 2px solid black;
+    max-width: 700px;
     text-align: center;
 }
 
 .gameboards-container {
     height: 50%;
-    justify-content: space-around;
+    display: grid;
+    grid-template: auto auto / auto auto;
+    justify-items: center;
+}
+
+.gameboard-name-input {
+    grid-row: 2 / 3;
+    text-align: center;
+    align-self: center;
 }
 
 .gameboard {
     display: grid;
-    grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+    grid-template: repeat(11, 1fr) / repeat(11, 1fr);
     max-height: 350px;
     max-width: 350px;
     aspect-ratio: 1;
+}
+
+.gameboard-label {
+    margin: auto;
 }
 
 .gameboard-cell {
@@ -56,6 +86,15 @@ img {
     min-width: 15px;
 }
 
+.row-count:nth-child(1) {
+    border: 2px solid red;
+    /* grid-area: 1 / 11 / 2 / 12; */
+}
+
 .inactive-cell {
     pointer-events: none;
+}
+
+.hide {
+    display: none;
 }
