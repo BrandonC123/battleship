@@ -110,10 +110,36 @@ function player(name, playerGameBoard) {
 }
 
 const displayHandler = (() => {
+    function inputPlayerName() {
+        document.querySelector(".player1-name").value =
+            document.getElementById("player1-name-input").value;
+        document.getElementById("start-card").classList.toggle("hide");
+        return document.getElementById("player1-name-input").value;
+    }
     function generateGameBoard(player) {
         const gameBoard = document.createElement("div");
         gameBoard.classList.add("gameboard");
+
+        const fillerCell = document.createElement("div");
+        gameBoard.appendChild(fillerCell);
+
+        let columnArray = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+        for (let i = 0; i < 10; i++) {
+            const gameBoardCell = document.createElement("div");
+            gameBoardCell.classList.add("gameboard-label");
+            gameBoardCell.textContent = columnArray[i];
+            gameBoard.appendChild(gameBoardCell);
+        }
+
+        let rowCount = 1;
         for (let i = 0; i < 100; i++) {
+            if (i % 10 === 0) {
+                const gameBoardCell = document.createElement("div");
+                gameBoardCell.classList.add("gameboard-label");
+                gameBoardCell.textContent = rowCount;
+                gameBoard.appendChild(gameBoardCell);
+                rowCount++;
+            }
             const gameBoardCell = document.createElement("div");
             gameBoardCell.classList.add(
                 player + "-gameboard-cell",
@@ -164,6 +190,7 @@ const displayHandler = (() => {
         messageBar.textContent = message;
     }
     return {
+        inputPlayerName,
         generateGameBoard,
         fillCell,
         fillAttackCell,
@@ -174,26 +201,17 @@ const displayHandler = (() => {
 })();
 
 const gameHandler = (() => {
-    let player1Name = "brandon";
-    let player2Name = "ai";
-    let player1 = player(player1Name, GameBoard());
-    let player2 = player(player2Name, GameBoard());
+    let player1;
+    let player2;
+    document.getElementById("start-btn").addEventListener("click", () => {
+        let player1Name = displayHandler.inputPlayerName();
+        player1 = player(player1Name, GameBoard());
+        displayHandler.generateGameBoard(player1Name);
+        player2 = player("AI", GameBoard());
 
-    displayHandler.generateGameBoard("brandon");
-    displayHandler.generateGameBoard("ai");
-    displayHandler.addAttackEventListener(player2);
-
-    player1.playerGameBoard.placeShip(player1Name, ship(5, [], false), [4, 2]);
-    player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [1, 1]);
-    player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [8, 5]);
-    player1.playerGameBoard.placeShip(player1Name, ship(3, [], false), [6, 2]);
-    player1.playerGameBoard.placeShip(player1Name, ship(2, [], false), [3, 7]);
-
-    player2.playerGameBoard.placeShip(player2Name, ship(5, [], false), [4, 2]);
-    player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [1, 1]);
-    player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [8, 5]);
-    player2.playerGameBoard.placeShip(player2Name, ship(3, [], false), [6, 2]);
-    player2.playerGameBoard.placeShip(player2Name, ship(2, [], false), [9, 7]);
+        displayHandler.generateGameBoard(player2.name);
+        displayHandler.addAttackEventListener(player2);
+    });
 
     let player1Turn = false;
     function gameLoop() {
@@ -202,7 +220,7 @@ const gameHandler = (() => {
             displayHandler.fillAttackCell(player1, aiAttack);
             console.log(aiAttack);
             player1Turn = true;
-            displayHandler.toggleGameBoard(player2Name);
+            displayHandler.toggleGameBoard(player2.name);
         }
         if (player2.playerGameBoard.checkAllShips()) {
             console.log("game over!");
@@ -225,3 +243,15 @@ const gameHandler = (() => {
 // module.exports.placeShip = testGameBoard.placeShip;
 // module.exports.receiveAttack = testGameBoard.receiveAttack;
 // module.exports.checkAllShips = testGameBoard.checkAllShips;
+
+// player1.playerGameBoard.placeShip(player1Name, ship(5, [], false), [4, 2]);
+// player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [1, 1]);
+// player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [8, 5]);
+// player1.playerGameBoard.placeShip(player1Name, ship(3, [], false), [6, 2]);
+// player1.playerGameBoard.placeShip(player1Name, ship(2, [], false), [3, 7]);
+
+// player2.playerGameBoard.placeShip(player2Name, ship(5, [], false), [4, 2]);
+// player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [1, 1]);
+// player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [8, 5]);
+// player2.playerGameBoard.placeShip(player2Name, ship(3, [], false), [6, 2]);
+// player2.playerGameBoard.placeShip(player2Name, ship(2, [], false), [9, 7]);
