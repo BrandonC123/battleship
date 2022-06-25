@@ -11,13 +11,35 @@
         <header class="header">
             <img class="header-logo" src="../img/header-logo.png" alt="" />
         </header>
+        <div id="start-card" class="modal">
+            <div class="modal-content">
+                <form class="player-form column" action="">
+                    <div class="input column">
+                        <label for="player1-name"
+                            >Please Enter Player Name</label
+                        >
+                        <input
+                            required
+                            type="text"
+                            name="player1-name"
+                            id="player1-name-input"
+                            placeholder="Player Name"
+                        />
+                    </div>
+                    <button id="start-btn" class="acion-btn" type="button">
+                        Start
+                    </button>
+                </form>
+            </div>
+        </div>
+
         <div class="overall-container container">
             <div class="message-bar">
                 <h3 class="message-bar-content">Game Start</h3>
             </div>
             <div class="gameboards-container">
                 <input
-                    class="gameboard-name-input"
+                    class="gameboard-name-input player1-name"
                     type="text"
                     placeholder="Player 1 Name"
                 />

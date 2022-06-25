@@ -4,7 +4,8 @@ body {
     padding: 0;
 }
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -44,6 +45,36 @@ img {
     min-height: 35px;
 }
 
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 2em;
+    border: 1px solid #888;
+    border-radius: 0.5em;
+    width: 40%;
+}
+
+.player-form, .input {
+    align-items: center;
+    gap: 10px;
+}
+
+.action-btn {
+    
+}
+
 .overall-container {
     height: 80%;
 }
@@ -56,7 +87,7 @@ img {
 }
 
 .gameboards-container {
-    height: 50%;
+    height: 55%;
     display: grid;
     grid-template: auto auto / auto auto;
     justify-items: center;
