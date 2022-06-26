@@ -131,23 +131,31 @@ const displayHandler = (() => {
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener("mouseover", () => {
                 for (let j = 0; j < ship.length; j++) {
-                    if ((i + 2) % 10 !== 0) {
+                    if (i + (ship.length - j) <= Math.floor(i / 10) * 10 + 10) {
                         cells[i + j].classList.toggle("hover-cell");
+                    } else {
+                        return;
                     }
                 }
             });
             cells[i].addEventListener("mouseout", () => {
                 for (let j = 0; j < ship.length; j++) {
-                    if ((i + 2) % 10 !== 0) {
+                    if (i + (ship.length - j) <= Math.floor(i / 10) * 10 + 10) {
                         cells[i + j].classList.toggle("hover-cell");
+                    } else {
+                        return;
                     }
                 }
             });
             cells[i].addEventListener("click", () => {
+                const shipList = player.playerGameBoard.shipList;
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
+                if ((coordinate[1] + shipList[count].length - 1) / 10 > 1) {
+                    return;
+                }
                 player.playerGameBoard.placeShip(
                     player.name,
-                    player.playerGameBoard.shipList[count],
+                    shipList[count],
                     coordinate
                 );
                 if (count < 4) {
@@ -205,7 +213,10 @@ const displayHandler = (() => {
         const shipList = player.playerGameBoard.shipList;
         for (let i = 0; i < shipList.length; i++) {
             const coord1 = Math.floor(Math.random() * 10 + 1);
-            const coord2 = Math.floor(Math.random() * 10 + 1);
+            let coord2 = Math.floor(Math.random() * 10 + 1);
+            if ((coord2 + shipList[i].length) / 10 > 1) {
+                console.log(coord2 + " coord2");
+            }
             const coordinate = [coord1, coord2];
             player.playerGameBoard.placeShip(
                 player.name,
