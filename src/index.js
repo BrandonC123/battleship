@@ -116,8 +116,8 @@ function player(name, playerGameBoard) {
 }
 
 const displayHandler = (() => {
-    const defaultCellColor = "white"
-    const hoverCellColor = "greenyellow"
+    const defaultCellColor = "white";
+    const hoverCellColor = "greenyellow";
     function inputPlayerName() {
         document.querySelector(".player1-name").value =
             document.getElementById("player1-name-input").value;
@@ -125,6 +125,7 @@ const displayHandler = (() => {
         return document.getElementById("player1-name-input").value;
     }
     function toggleHoverCell(player, count) {
+        console.log(count);
         const ship = player.playerGameBoard.shipList[count];
         let cells = document.querySelectorAll(".brandon-gameboard-cell");
         for (let i = 0; i < cells.length; i++) {
@@ -181,11 +182,11 @@ const displayHandler = (() => {
         const fillerCell = document.createElement("div");
         gameBoard.appendChild(fillerCell);
 
-        let columnArray = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+        let columnLabel = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
         for (let i = 0; i < 10; i++) {
             const gameBoardCell = document.createElement("div");
             gameBoardCell.classList.add("gameboard-label");
-            gameBoardCell.textContent = columnArray[i];
+            gameBoardCell.textContent = columnLabel[i];
             gameBoard.appendChild(gameBoardCell);
         }
 
@@ -293,13 +294,16 @@ const displayHandler = (() => {
         console.log("clear");
         let cells = document.querySelectorAll(`.${player1Name}-gameboard-cell`);
         cells.forEach((cell) => {
-            cell.style.backgroundColor = "white";
+            cell.classList.remove("hover-cell");
+            cell.style.removeProperty("background-color");
+            cell.replaceWith(cell.cloneNode());
         });
         let enemyCells = document.querySelectorAll(
             `.${player2Name}-gameboard-cell`
         );
         enemyCells.forEach((cell) => {
-            cell.style.backgroundColor = "white";
+            cell.style.removeProperty("background-color");
+            cell.replaceWith(cell.cloneNode());
         });
     }
     function displayMessage(message) {
@@ -351,7 +355,9 @@ const gameHandler = (() => {
             console.log("game over!");
             player1.playerGameBoard = GameBoard();
             player2.playerGameBoard = GameBoard();
-            document.querySelector(".new-game-btn").classList.toggle("show");
+            document.querySelector(".new-game-btn").classList.add("show");
+            player1Turn = true;
+            displayHandler.toggleGameBoard(player2.name);
             console.log(player1);
             return;
         }
