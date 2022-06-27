@@ -116,6 +116,8 @@ function player(name, playerGameBoard) {
 }
 
 const displayHandler = (() => {
+    const defaultCellColor = "white"
+    const hoverCellColor = "greenyellow"
     function inputPlayerName() {
         document.querySelector(".player1-name").value =
             document.getElementById("player1-name-input").value;
@@ -249,31 +251,13 @@ const displayHandler = (() => {
                 i,
                 allPlacements
             );
-            // const coord1 = Math.floor(Math.random() * 10 + 1);
-            // let coord2 = Math.floor(Math.random() * 10 + 1);
-            // if ((coord2 + shipList[i].length - 1) / 10 > 1) {
-            //     coord2 -= shipList[i].length;
-            // }
-            // const coordinate = [coord1, coord2];
-            // if (checkDuplicate(allPlacements, coordinate, shipList[i].length)) {
-            //     console.log("dupe");
-            // } else {
-            //     player.playerGameBoard.placeShip(
-            //         player.name,
-            //         shipList[i],
-            //         coordinate
-            //     );
-            //     shipList[i].placement.forEach((place) => {
-            //         allPlacements.push(place);
-            //     });
-            // }
         }
-        // console.log(allPlacements);
     }
     function fillCell(playerName, coordinate, i, color) {
         let index = (coordinate[0] - 1) * 10 + (coordinate[1] + i - 1);
         let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
         cells[index].style.backgroundColor = color;
+        // cells[index].classList.toggle("inactive-cell");
     }
     function fillAttackCell(player, coordinate) {
         if (player.playerGameBoard.receiveAttack(coordinate)) {
@@ -294,7 +278,7 @@ const displayHandler = (() => {
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
                 fillAttackCell(player2, coordinate);
                 toggleGameBoard(player2.name);
-                setTimeout(() => gameHandler.gameLoop(), 2000);
+                setTimeout(() => gameHandler.gameLoop(), 0);
             });
         }
     }
@@ -305,10 +289,31 @@ const displayHandler = (() => {
             cell.classList.toggle("inactive-cell");
         });
     }
+    function clearBoardDisplay(player1Name, player2Name) {
+        console.log("clear");
+        let cells = document.querySelectorAll(`.${player1Name}-gameboard-cell`);
+        cells.forEach((cell) => {
+            cell.style.backgroundColor = "white";
+        });
+        let enemyCells = document.querySelectorAll(
+            `.${player2Name}-gameboard-cell`
+        );
+        enemyCells.forEach((cell) => {
+            cell.style.backgroundColor = "white";
+        });
+    }
     function displayMessage(message) {
         const messageBar = document.querySelector(".message-bar-content");
         messageBar.textContent = message;
     }
+    document.querySelector(".new-game-btn").addEventListener("click", () => {
+        displayHandler.clearBoardDisplay(
+            gameHandler.player1.name,
+            gameHandler.player2.name
+        );
+        toggleGameBoard(gameHandler.player1.name, gameHandler.player2.name);
+        toggleHoverCell(gameHandler.player1, 0);
+    });
     return {
         inputPlayerName,
         generateGameBoard,
@@ -317,6 +322,7 @@ const displayHandler = (() => {
         fillAttackCell,
         addAttackEventListener,
         toggleGameBoard,
+        clearBoardDisplay,
         displayMessage,
     };
 })();
@@ -337,17 +343,23 @@ const gameHandler = (() => {
 
     let player1Turn = true;
     function gameLoop() {
+        if (player1.playerGameBoard.checkAllShips()) {
+            console.log("game over!");
+            return;
+        }
+        if (player2.playerGameBoard.checkAllShips()) {
+            console.log("game over!");
+            player1.playerGameBoard = GameBoard();
+            player2.playerGameBoard = GameBoard();
+            document.querySelector(".new-game-btn").classList.toggle("show");
+            console.log(player1);
+            return;
+        }
         if (!player1Turn) {
             let aiAttack = player2.generateAttack();
             displayHandler.fillAttackCell(player1, aiAttack);
             player1Turn = true;
             displayHandler.toggleGameBoard(player2.name);
-        }
-        if (player1.playerGameBoard.checkAllShips()) {
-            console.log("game over!");
-        }
-        if (player2.playerGameBoard.checkAllShips()) {
-            console.log("game over!");
         }
         player1Turn = false;
         console.log(player1);
@@ -369,15 +381,3 @@ const gameHandler = (() => {
 // module.exports.placeShip = testGameBoard.placeShip;
 // module.exports.receiveAttack = testGameBoard.receiveAttack;
 // module.exports.checkAllShips = testGameBoard.checkAllShips;
-
-// player1.playerGameBoard.placeShip(player1Name, ship(5, [], false), [4, 2]);
-// player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [1, 1]);
-// player1.playerGameBoard.placeShip(player1Name, ship(4, [], false), [8, 5]);
-// player1.playerGameBoard.placeShip(player1Name, ship(3, [], false), [6, 2]);
-// player1.playerGameBoard.placeShip(player1Name, ship(2, [], false), [3, 7]);
-
-// player2.playerGameBoard.placeShip(player2Name, ship(5, [], false), [4, 2]);
-// player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [1, 1]);
-// player2.playerGameBoard.placeShip(player2Name, ship(4, [], false), [8, 5]);
-// player2.playerGameBoard.placeShip(player2Name, ship(3, [], false), [6, 2]);
-// player2.playerGameBoard.placeShip(player2Name, ship(2, [], false), [9, 7]);
