@@ -44,7 +44,6 @@ const GameBoard = () => {
         gameBoardArray,
         placeShip(playerName, ship, coordinate) {
             for (let i = 0; i < ship.length; i++) {
-                console.log(coordinate);
                 gameBoardArray[coordinate[0] - 1][coordinate[1] - 1 + i] = [
                     coordinate[0],
                     coordinate[1] + i,
@@ -124,9 +123,7 @@ const displayHandler = (() => {
         return document.getElementById("player1-name-input").value;
     }
     function toggleHoverCell(player, count) {
-        console.log(player);
         const ship = player.playerGameBoard.shipList[count];
-        console.log(ship);
         let cells = document.querySelectorAll(".brandon-gameboard-cell");
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener("mouseover", () => {
@@ -163,14 +160,13 @@ const displayHandler = (() => {
                     cells.forEach((cell) => {
                         cell.replaceWith(cell.cloneNode());
                     });
-
                     toggleHoverCell(player, ++count);
                 } else {
                     cells.forEach((cell) => {
                         cell.classList.add("inactive-cell");
                     });
-                    displayHandler.addAttackEventListener(gameHandler.player2);
                     generateAiShipPlacement(gameHandler.player2);
+                    displayHandler.addAttackEventListener(gameHandler.player2);
                     gameHandler.gameLoop();
                 }
             });
@@ -209,22 +205,70 @@ const displayHandler = (() => {
         }
         document.querySelector(".gameboards-container").appendChild(gameBoard);
     }
-    function generateAiShipPlacement(player) {
-        const shipList = player.playerGameBoard.shipList;
-        for (let i = 0; i < shipList.length; i++) {
-            const coord1 = Math.floor(Math.random() * 10 + 1);
-            let coord2 = Math.floor(Math.random() * 10 + 1);
-            if ((coord2 + shipList[i].length) / 10 > 1) {
-                console.log(coord2 + " coord2");
+    function checkDuplicate(allPlacements, testCoord, length) {
+        for (let i = 0; i < length; i++) {
+            if (
+                JSON.stringify(allPlacements).includes(
+                    JSON.stringify([testCoord[0], testCoord[1] + i])
+                )
+            ) {
+                console.log("coord");
+                return true;
             }
-            const coordinate = [coord1, coord2];
+        }
+    }
+    function generateAiShipPlacementWorker(player, index, allPlacements) {
+        const shipList = player.playerGameBoard.shipList;
+        const coord1 = Math.floor(Math.random() * 10 + 1);
+        let coord2 = Math.floor(Math.random() * 10 + 1);
+        if ((coord2 + shipList[index].length - 1) / 10 > 1) {
+            coord2 -= shipList[index].length;
+        }
+        const coordinate = [coord1, coord2];
+        if (checkDuplicate(allPlacements, coordinate, shipList[index].length)) {
+            console.log("dupe");
+            generateAiShipPlacementWorker(player, index, allPlacements);
+        } else {
             player.playerGameBoard.placeShip(
                 player.name,
-                shipList[i],
+                shipList[index],
                 coordinate
             );
+            shipList[index].placement.forEach((place) => {
+                allPlacements.push(place);
+            });
         }
-        console.log(shipList);
+        return allPlacements;
+    }
+    function generateAiShipPlacement(player) {
+        const shipList = player.playerGameBoard.shipList;
+        let allPlacements = [];
+        for (let i = 0; i < shipList.length; i++) {
+            allPlacements = generateAiShipPlacementWorker(
+                player,
+                i,
+                allPlacements
+            );
+            // const coord1 = Math.floor(Math.random() * 10 + 1);
+            // let coord2 = Math.floor(Math.random() * 10 + 1);
+            // if ((coord2 + shipList[i].length - 1) / 10 > 1) {
+            //     coord2 -= shipList[i].length;
+            // }
+            // const coordinate = [coord1, coord2];
+            // if (checkDuplicate(allPlacements, coordinate, shipList[i].length)) {
+            //     console.log("dupe");
+            // } else {
+            //     player.playerGameBoard.placeShip(
+            //         player.name,
+            //         shipList[i],
+            //         coordinate
+            //     );
+            //     shipList[i].placement.forEach((place) => {
+            //         allPlacements.push(place);
+            //     });
+            // }
+        }
+        // console.log(allPlacements);
     }
     function fillCell(playerName, coordinate, i, color) {
         let index = (coordinate[0] - 1) * 10 + (coordinate[1] + i - 1);
@@ -245,11 +289,10 @@ const displayHandler = (() => {
             `.${player2.name}-gameboard-cell`
         );
         for (let i = 0; i < enemyCells.length; i++) {
+            // enemyCells[i].style.backgroundColor = "white";
             enemyCells[i].addEventListener("click", () => {
-                console.log(i);
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
                 fillAttackCell(player2, coordinate);
-                console.log(player2);
                 toggleGameBoard(player2.name);
                 setTimeout(() => gameHandler.gameLoop(), 2000);
             });
@@ -297,9 +340,11 @@ const gameHandler = (() => {
         if (!player1Turn) {
             let aiAttack = player2.generateAttack();
             displayHandler.fillAttackCell(player1, aiAttack);
-            console.log(aiAttack);
             player1Turn = true;
             displayHandler.toggleGameBoard(player2.name);
+        }
+        if (player1.playerGameBoard.checkAllShips()) {
+            console.log("game over!");
         }
         if (player2.playerGameBoard.checkAllShips()) {
             console.log("game over!");
