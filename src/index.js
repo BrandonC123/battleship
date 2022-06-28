@@ -126,6 +126,7 @@ const displayHandler = (() => {
     }
     function toggleHoverCell(player, count) {
         console.log(count);
+        displayMessage("Place your ships!");
         const ship = player.playerGameBoard.shipList[count];
         let cells = document.querySelectorAll(".brandon-gameboard-cell");
         for (let i = 0; i < cells.length; i++) {
@@ -165,6 +166,7 @@ const displayHandler = (() => {
                     });
                     toggleHoverCell(player, ++count);
                 } else {
+                    displayMessage("Game Start, attack the enemy!");
                     cells.forEach((cell) => {
                         cell.classList.add("inactive-cell");
                     });
@@ -277,9 +279,14 @@ const displayHandler = (() => {
             // enemyCells[i].style.backgroundColor = "white";
             enemyCells[i].addEventListener("click", () => {
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
-                fillAttackCell(player2, coordinate);
                 toggleGameBoard(player2.name);
-                setTimeout(() => gameHandler.gameLoop(), 0);
+                setTimeout(() => displayMessage(`${player2.name}'s turn`), 0);
+                fillAttackCell(player2, coordinate);
+                setTimeout(function () {
+                    if (gameHandler.gameLoop()) {
+                        displayMessage(`${gameHandler.player1.name}'s turn`);
+                    }
+                }, 0);
             });
         }
     }
@@ -347,19 +354,25 @@ const gameHandler = (() => {
 
     let player1Turn = true;
     function gameLoop() {
-        if (player1.playerGameBoard.checkAllShips()) {
+        if (
+            player2.playerGameBoard.checkAllShips() ||
+            player1.playerGameBoard.checkAllShips()
+        ) {
+            let winner;
+            if (!player1Turn) {
+                winner = player1.name;
+            } else {
+                winner = player2.name;
+            }
             console.log("game over!");
-            return;
-        }
-        if (player2.playerGameBoard.checkAllShips()) {
-            console.log("game over!");
+            displayHandler.displayMessage(`Game over! Winner is ${winner}`);
             player1.playerGameBoard = GameBoard();
             player2.playerGameBoard = GameBoard();
             document.querySelector(".new-game-btn").classList.add("show");
             player1Turn = true;
             displayHandler.toggleGameBoard(player2.name);
             console.log(player1);
-            return;
+            return false;
         }
         if (!player1Turn) {
             let aiAttack = player2.generateAttack();
@@ -368,6 +381,7 @@ const gameHandler = (() => {
             displayHandler.toggleGameBoard(player2.name);
         }
         player1Turn = false;
+        return true;
         console.log(player1);
         console.log(player2);
     }
