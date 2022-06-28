@@ -122,27 +122,61 @@ const displayHandler = (() => {
         document.getElementById("start-card").classList.toggle("hide");
         return document.getElementById("player1-name-input").value;
     }
-    function toggleHoverCell(player, count) {
+    function hoverCell(ship, index, offset) {
+        const cells = document.querySelectorAll(".Brandon-gameboard-cell");
+        if (offset < 10) {
+            // If ship is longer than board horizontally cancel hover
+            if (
+                index + (ship.length - offset) <=
+                Math.floor(index / 10) * 10 + 10
+            ) {
+                cells[index + offset].classList.toggle("hover-cell");
+            } else {
+                return;
+            }
+        } else {
+            // If ship is longer than board vertically cancel hover
+            if (index + offset < 100) {
+                cells[index + offset].classList.toggle("hover-cell");
+            } else {
+                return;
+            }
+        }
+    }
+    function toggleHoverCell(player, count, horizontal) {
         console.log(count);
-        displayMessage("Place your ships!");
         const ship = player.playerGameBoard.shipList[count];
         let cells = document.querySelectorAll(`.${player.name}-gameboard-cell`);
+
+        document.querySelector(".rotate-btn").addEventListener("click", () => {
+            const cells = document.querySelectorAll(".Brandon-gameboard-cell");
+            cells.forEach((cell) => {
+                cell.replaceWith(cell.cloneNode());
+            });
+            toggleHoverCell(player, count, !horizontal);
+        });
+        displayMessage(
+            `Place your ships! ${
+                player.playerGameBoard.shipList.length - count
+            } remaining`
+        );
+
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener("mouseover", () => {
                 for (let j = 0; j < ship.length; j++) {
-                    if (i + (ship.length - j) <= Math.floor(i / 10) * 10 + 10) {
-                        cells[i + j].classList.toggle("hover-cell");
+                    if (horizontal) {
+                        hoverCell(ship, i, j);
                     } else {
-                        return;
+                        hoverCell(ship, i, j * 10);
                     }
                 }
             });
             cells[i].addEventListener("mouseout", () => {
                 for (let j = 0; j < ship.length; j++) {
-                    if (i + (ship.length - j) <= Math.floor(i / 10) * 10 + 10) {
-                        cells[i + j].classList.toggle("hover-cell");
+                    if (horizontal) {
+                        hoverCell(ship, i, j);
                     } else {
-                        return;
+                        hoverCell(ship, i, j * 10);
                     }
                 }
             });
@@ -163,7 +197,7 @@ const displayHandler = (() => {
                     cells.forEach((cell) => {
                         cell.replaceWith(cell.cloneNode());
                     });
-                    toggleHoverCell(player, ++count);
+                    toggleHoverCell(player, ++count, horizontal);
                 } else {
                     displayMessage("Game Start, attack the enemy!");
                     cells.forEach((cell) => {
@@ -345,16 +379,16 @@ const displayHandler = (() => {
 const gameHandler = (() => {
     let player1;
     let player2;
-    document.getElementById("start-btn").addEventListener("click", function () {
-        let player1Name = displayHandler.inputPlayerName();
-        player1 = player(player1Name, GameBoard());
-        player2 = player("AI", GameBoard());
-        gameHandler.player1 = player1;
-        gameHandler.player2 = player2;
-        displayHandler.generateGameBoard(player1Name);
-        displayHandler.generateGameBoard(player2.name);
-        displayHandler.toggleHoverCell(player1, 0);
-    });
+    // document.getElementById("start-btn").addEventListener("click", function () {
+    let player1Name = displayHandler.inputPlayerName();
+    player1 = player(player1Name, GameBoard());
+    player2 = player("AI", GameBoard());
+    // gameHandler.player1 = player1;
+    // gameHandler.player2 = player2;
+    displayHandler.generateGameBoard(player1Name);
+    displayHandler.generateGameBoard(player2.name);
+    displayHandler.toggleHoverCell(player1, 0, true);
+    // });
 
     let player1Turn = true;
     function gameLoop() {
