@@ -42,14 +42,28 @@ const GameBoard = () => {
     let missedAttackList = [];
     return {
         gameBoardArray,
-        placeShip(playerName, ship, coordinate, color) {
+        placeShip(playerName, ship, coordinate, color, horizontal) {
             for (let i = 0; i < ship.length; i++) {
-                gameBoardArray[coordinate[0] - 1][coordinate[1] - 1 + i] = [
-                    coordinate[0],
-                    coordinate[1] + i,
-                ];
-                displayHandler.fillCell(playerName, coordinate, i, color);
-                ship.placement.push([coordinate[0], coordinate[1] + i]);
+                if (horizontal) {
+                    gameBoardArray[coordinate[0] - 1][coordinate[1] - 1 + i] = [
+                        coordinate[0],
+                        coordinate[1] + i,
+                    ];
+                    ship.placement.push([coordinate[0], coordinate[1] + i]);
+                    displayHandler.fillCell(playerName, coordinate, i, color);
+                } else {
+                    gameBoardArray[coordinate[0] - 1 + i][coordinate[1] - 1] = [
+                        coordinate[0] + i,
+                        coordinate[1],
+                    ];
+                    ship.placement.push([coordinate[0] + i, coordinate[1]]);
+                    displayHandler.fillCell(
+                        playerName,
+                        coordinate,
+                        i * 10,
+                        color
+                    );
+                }
             }
             return gameBoardArray[coordinate[0] - 1];
         },
@@ -130,8 +144,10 @@ const displayHandler = (() => {
                 index + (ship.length - offset) <=
                 Math.floor(index / 10) * 10 + 10
             ) {
+                console.log("hover");
                 cells[index + offset].classList.toggle("hover-cell");
             } else {
+                console.log("t");
                 return;
             }
         } else {
@@ -154,6 +170,7 @@ const displayHandler = (() => {
                 cell.replaceWith(cell.cloneNode());
             });
             toggleHoverCell(player, count, !horizontal);
+            horizontal = !horizontal;
         });
         displayMessage(
             `Place your ships! ${
@@ -190,7 +207,8 @@ const displayHandler = (() => {
                     player.name,
                     shipList[count],
                     coordinate,
-                    "gray"
+                    "gray",
+                    horizontal
                 );
                 if (count < 4) {
                     // Replace nodes to remove event listeners
