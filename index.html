@@ -5,11 +5,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="style.css" />
-        <title>Document</title>
+        <title>Battleship</title>
     </head>
     <body>
         <header class="header">
-            <img class="header-logo" src="../img/header-logo.png" alt="" />
+            <img class="header-logo" src="./img/header-logo.png" alt="" />
         </header>
         <div id="start-card" class="modal">
             <div class="modal-content">
@@ -35,15 +35,23 @@
 
         <div class="overall-container container">
             <div class="message-bar">
-                <h3 class="message-bar-content">Game Start</h3>
+                <h3 class="message-bar-content">...</h3>
             </div>
+            <button class="rotate-btn">Rotate</button>
             <div class="gameboards-container">
+                <button class="action-btn new-game-btn">New Game</button>
                 <input
+                    readonly
                     class="gameboard-name-input player1-name"
                     type="text"
                     placeholder="Player 1 Name"
                 />
-                <input class="gameboard-name-input" type="text" value="AI" />
+                <input
+                    readonly
+                    class="gameboard-name-input player2-name"
+                    type="text"
+                    value="AI"
+                />
             </div>
         </div>
         <script src="main.js"></script>
