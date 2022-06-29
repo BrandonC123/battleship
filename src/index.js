@@ -213,20 +213,17 @@ const displayHandler = (() => {
                 const shipList = player.playerGameBoard.shipList;
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
 
-                let allPlacements = [];
-                for (let i = 0; i < shipList.length; i++) {
-                    allPlacements = allPlacements.concat(shipList[i].placement);
-                }
-                if (checkDuplicate(allPlacements, coordinate, ship.length)) {
+                // Detect if ship overlaps another ship
+                if (checkOverlap(shipList, coordinate, ship.length)) {
                     console.log("Overlap detected");
                     return;
                 }
+                // Detects when ship is longer than gameboard
                 if (
                     ((coordinate[1] + ship.length - 1) / 10 > 1 &&
                         horizontal) ||
                     ((coordinate[0] + ship.length - 1) / 10 > 1 && !horizontal)
                 ) {
-                    console.log((coordinate[0] + ship.length - 1) / 10);
                     return;
                 }
                 player.playerGameBoard.placeShip(
@@ -248,7 +245,7 @@ const displayHandler = (() => {
                         cell.classList.add("inactive-cell");
                     });
                     console.log(gameHandler.player1);
-                    generateAiShipPlacement(gameHandler.player2);
+                    generateShipPlacementWrapper(gameHandler.player2);
                     displayHandler.addAttackEventListener(gameHandler.player2);
                     gameHandler.gameLoop();
                 }
@@ -295,7 +292,8 @@ const displayHandler = (() => {
         }
         return allPlacements;
     }
-    function checkDuplicate(allPlacements, testCoord, length) {
+    function checkOverlap(shipList, testCoord, length) {
+        const allPlacements = getAllPlacements(shipList);
         for (let i = 0; i < length; i++) {
             // Compare coordinates and all placement of ships to determine
             // if there is a duplicate (vertically & horizontally)
@@ -316,7 +314,7 @@ const displayHandler = (() => {
             }
         }
     }
-    function generateAiShipPlacementWorker(player, index, allPlacements) {
+    function generateShipPlacementWorker(player, index) {
         const shipList = player.playerGameBoard.shipList;
         const coord1 = Math.floor(Math.random() * 10 + 1);
         let coord2 = Math.floor(Math.random() * 10 + 1);
@@ -324,9 +322,9 @@ const displayHandler = (() => {
             coord2 -= shipList[index].length;
         }
         const coordinate = [coord1, coord2];
-        if (checkDuplicate(allPlacements, coordinate, shipList[index].length)) {
+        if (checkOverlap(shipList, coordinate, shipList[index].length)) {
             console.log("dupe");
-            generateAiShipPlacementWorker(player, index, allPlacements);
+            generateShipPlacementWorker(player, index);
         } else {
             player.playerGameBoard.placeShip(
                 player.name,
@@ -335,29 +333,19 @@ const displayHandler = (() => {
                 "white",
                 true
             );
-            shipList[index].placement.forEach((place) => {
-                allPlacements.push(place);
-            });
         }
-        return allPlacements;
     }
-    function generateAiShipPlacement(player) {
+    function generateShipPlacementWrapper(player) {
         console.log(player);
         const shipList = player.playerGameBoard.shipList;
-        let allPlacements = [];
         for (let i = 0; i < shipList.length; i++) {
-            allPlacements = generateAiShipPlacementWorker(
-                player,
-                i,
-                allPlacements
-            );
+            allPlacements = generateShipPlacementWorker(player, i);
         }
     }
     function fillCell(playerName, coordinate, i, color) {
         let index = (coordinate[0] - 1) * 10 + (coordinate[1] + i - 1);
         let cells = document.querySelectorAll(`.${playerName}-gameboard-cell`);
         cells[index].style.backgroundColor = color;
-        // cells[index].classList.toggle("inactive-cell");
     }
     function fillAttackCell(player, coordinate) {
         if (player.playerGameBoard.receiveAttack(coordinate)) {
@@ -374,6 +362,7 @@ const displayHandler = (() => {
         );
         for (let i = 0; i < enemyCells.length; i++) {
             enemyCells[i].addEventListener("click", () => {
+                // Disable attacking same cell by turning off pointer-events
                 enemyCells[i].classList.toggle("inactive-cell");
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
                 toggleGameBoard(player2.name);
