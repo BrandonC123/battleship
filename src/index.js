@@ -136,8 +136,8 @@ const displayHandler = (() => {
         document.getElementById("start-card").classList.toggle("hide");
         return document.getElementById("player1-name-input").value;
     }
-    function hoverCell(ship, index, offset, horizontal) {
-        const cells = document.querySelectorAll(".Brandon-gameboard-cell");
+    function hoverCell(cells, ship, index, offset, horizontal) {
+        // const cells = document.querySelectorAll(`.brandon-gameboard-cell`);
         if (horizontal) {
             // If ship is longer than board horizontally cancel hover
             if (
@@ -181,12 +181,12 @@ const displayHandler = (() => {
             cells[i].addEventListener("mouseover", () => {
                 for (let j = 0; j < ship.length; j++) {
                     if (horizontal) {
-                        test = hoverCell(ship, i, j, horizontal);
+                        test = hoverCell(cells, ship, i, j, horizontal);
                     } else if (
                         !horizontal &&
                         i < 100 - (ship.length - 1) * 10
                     ) {
-                        test = hoverCell(ship, i, j * 10, horizontal);
+                        test = hoverCell(cells, ship, i, j * 10, horizontal);
                     }
                     if (!test) {
                         return;
@@ -196,12 +196,12 @@ const displayHandler = (() => {
             cells[i].addEventListener("mouseout", () => {
                 for (let j = 0; j < ship.length; j++) {
                     if (horizontal) {
-                        test = hoverCell(ship, i, j, horizontal);
+                        test = hoverCell(cells, ship, i, j, horizontal);
                     } else if (
                         !horizontal &&
                         i < 100 - (ship.length - 1) * 10
                     ) {
-                        test = hoverCell(ship, i, j * 10, horizontal);
+                        test = hoverCell(cells, ship, i, j * 10, horizontal);
                     }
                     if (!test) {
                         j += ship.length;
@@ -210,7 +210,17 @@ const displayHandler = (() => {
                 }
             });
             cells[i].addEventListener("click", () => {
+                const shipList = player.playerGameBoard.shipList;
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
+
+                let allPlacements = [];
+                for (let i = 0; i < shipList.length; i++) {
+                    allPlacements = allPlacements.concat(shipList[i].placement);
+                }
+                if (checkDuplicate(allPlacements, coordinate, ship.length)) {
+                    console.log("Overlap detected");
+                    return;
+                }
                 if (
                     ((coordinate[1] + ship.length - 1) / 10 > 1 &&
                         horizontal) ||
@@ -278,14 +288,30 @@ const displayHandler = (() => {
         }
         document.querySelector(".gameboards-container").appendChild(gameBoard);
     }
+    function getAllPlacements(shipList) {
+        let allPlacements = [];
+        for (let i = 0; i < shipList.length; i++) {
+            allPlacements = allPlacements.concat(shipList[i].placement);
+        }
+        return allPlacements;
+    }
     function checkDuplicate(allPlacements, testCoord, length) {
         for (let i = 0; i < length; i++) {
+            // Compare coordinates and all placement of ships to determine
+            // if there is a duplicate (vertically & horizontally)
+            const allPlacementsString = JSON.stringify(allPlacements);
+            const horizontalCoord = JSON.stringify([
+                testCoord[0],
+                testCoord[1] + i,
+            ]);
+            const verticalCoord = JSON.stringify([
+                testCoord[0] + i,
+                testCoord[1],
+            ]);
             if (
-                JSON.stringify(allPlacements).includes(
-                    JSON.stringify([testCoord[0], testCoord[1] + i])
-                )
+                allPlacementsString.includes(horizontalCoord) ||
+                allPlacementsString.includes(verticalCoord)
             ) {
-                console.log("coord");
                 return true;
             }
         }
@@ -348,6 +374,7 @@ const displayHandler = (() => {
         );
         for (let i = 0; i < enemyCells.length; i++) {
             enemyCells[i].addEventListener("click", () => {
+                enemyCells[i].classList.toggle("inactive-cell");
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
                 toggleGameBoard(player2.name);
                 setTimeout(
@@ -414,16 +441,16 @@ const displayHandler = (() => {
 const gameHandler = (() => {
     let player1;
     let player2;
-    document.getElementById("start-btn").addEventListener("click", function () {
-        let player1Name = displayHandler.inputPlayerName();
-        player1 = player(player1Name, GameBoard());
-        player2 = player("AI", GameBoard());
-        gameHandler.player1 = player1;
-        gameHandler.player2 = player2;
-        displayHandler.generateGameBoard(player1Name);
-        displayHandler.generateGameBoard(player2.name);
-        displayHandler.toggleHoverCell(player1, 0, true);
-    });
+    // document.getElementById("start-btn").addEventListener("click", function () {
+    let player1Name = displayHandler.inputPlayerName();
+    player1 = player(player1Name, GameBoard());
+    player2 = player("AI", GameBoard());
+    // gameHandler.player1 = player1;
+    // gameHandler.player2 = player2;
+    displayHandler.generateGameBoard(player1Name);
+    displayHandler.generateGameBoard(player2.name);
+    displayHandler.toggleHoverCell(player1, 0, true);
+    // });
 
     let player1Turn = true;
     function gameLoop() {
