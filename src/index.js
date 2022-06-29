@@ -162,6 +162,7 @@ const displayHandler = (() => {
     function toggleHoverCell(player, count, horizontal) {
         const ship = player.playerGameBoard.shipList[count];
         let cells = document.querySelectorAll(`.${player.name}-gameboard-cell`);
+        console.log(horizontal);
 
         // Event listener to rotate ships
         document.querySelector(".rotate-btn").addEventListener("click", () => {
@@ -176,19 +177,19 @@ const displayHandler = (() => {
                 player.playerGameBoard.shipList.length - count
             } remaining`
         );
-        let test;
+        let hover;
         for (let i = 0; i < cells.length; i++) {
             cells[i].addEventListener("mouseover", () => {
                 for (let j = 0; j < ship.length; j++) {
                     if (horizontal) {
-                        test = hoverCell(cells, ship, i, j, horizontal);
+                        hover = hoverCell(cells, ship, i, j, horizontal);
                     } else if (
                         !horizontal &&
                         i < 100 - (ship.length - 1) * 10
                     ) {
-                        test = hoverCell(cells, ship, i, j * 10, horizontal);
+                        hover = hoverCell(cells, ship, i, j * 10, horizontal);
                     }
-                    if (!test) {
+                    if (!hover) {
                         return;
                     }
                 }
@@ -196,14 +197,14 @@ const displayHandler = (() => {
             cells[i].addEventListener("mouseout", () => {
                 for (let j = 0; j < ship.length; j++) {
                     if (horizontal) {
-                        test = hoverCell(cells, ship, i, j, horizontal);
+                        hover = hoverCell(cells, ship, i, j, horizontal);
                     } else if (
                         !horizontal &&
                         i < 100 - (ship.length - 1) * 10
                     ) {
-                        test = hoverCell(cells, ship, i, j * 10, horizontal);
+                        hover = hoverCell(cells, ship, i, j * 10, horizontal);
                     }
-                    if (!test) {
+                    if (!hover) {
                         j += ship.length;
                         return;
                     }
@@ -330,7 +331,7 @@ const displayHandler = (() => {
                 player.name,
                 shipList[index],
                 coordinate,
-                "white",
+                "gray",
                 true
             );
         }
@@ -366,16 +367,13 @@ const displayHandler = (() => {
                 enemyCells[i].classList.toggle("inactive-cell");
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
                 toggleGameBoard(player2.name);
-                setTimeout(
-                    () => displayMessage(`${player2.name}'s turn`),
-                    1000
-                );
+                setTimeout(() => displayMessage(`${player2.name}'s turn`), 0);
                 fillAttackCell(player2, coordinate);
                 setTimeout(function () {
                     if (gameHandler.gameLoop()) {
                         displayMessage(`${gameHandler.player1.name}'s turn`);
                     }
-                }, 3000);
+                }, 0);
             });
         }
     }
@@ -387,20 +385,21 @@ const displayHandler = (() => {
         });
     }
     function clearBoardDisplay(player1Name, player2Name) {
-        console.log("clear");
-        let cells = document.querySelectorAll(`.${player1Name}-gameboard-cell`);
-        cells.forEach((cell) => {
-            cell.classList.remove("hover-cell");
-            cell.style.removeProperty("background-color");
-            cell.replaceWith(cell.cloneNode());
-        });
-        let enemyCells = document.querySelectorAll(
+        const cells = document.querySelectorAll(
+            `.${player1Name}-gameboard-cell`
+        );
+        const enemyCells = document.querySelectorAll(
             `.${player2Name}-gameboard-cell`
         );
-        enemyCells.forEach((cell) => {
-            cell.style.removeProperty("background-color");
-            cell.replaceWith(cell.cloneNode());
-        });
+        for (let i = 0; i < cells.length; i++) {
+            cells[i].classList.remove("hover-cell");
+            cells[i].style.removeProperty("background-color");
+            cells[i].replaceWith(cells[i].cloneNode());
+
+            enemyCells[i].classList.remove("inactive-cell");
+            enemyCells[i].style.removeProperty("background-color");
+            enemyCells[i].replaceWith(enemyCells[i].cloneNode());
+        }
     }
     function displayMessage(message) {
         const messageBar = document.querySelector(".message-bar-content");
@@ -412,7 +411,7 @@ const displayHandler = (() => {
             gameHandler.player2.name
         );
         toggleGameBoard(gameHandler.player1.name, gameHandler.player2.name);
-        toggleHoverCell(gameHandler.player1, 0);
+        toggleHoverCell(gameHandler.player1, 0, true);
     });
     return {
         inputPlayerName,
