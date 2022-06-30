@@ -316,29 +316,46 @@ const displayHandler = (() => {
         }
     }
     function generateShipPlacementWorker(player, index) {
+        // Generate random number for horizontal/vertical placement
+        const rand = Math.floor(Math.random() * 2);
+        let horizontal = rand === 0 ? false : true;
+
         const shipList = player.playerGameBoard.shipList;
-        const coord1 = Math.floor(Math.random() * 10 + 1);
+
+        // Generate x & y values and check if they exceed the gameboard
+        // or overlap another ship
+        let coord1 = Math.floor(Math.random() * 10 + 1);
         let coord2 = Math.floor(Math.random() * 10 + 1);
-        if ((coord2 + shipList[index].length - 1) / 10 > 1) {
+        if ((coord2 + shipList[index].length - 1) / 10 > 1 && horizontal) {
             coord2 -= shipList[index].length;
         }
+        if (coord1 + shipList[index].length - 1 > 10 && !horizontal) {
+            coord1 -= shipList[index].length;
+        }
         const coordinate = [coord1, coord2];
-        if (checkOverlap(shipList, coordinate, shipList[index].length, true)) {
+        if (
+            checkOverlap(
+                shipList,
+                coordinate,
+                shipList[index].length,
+                horizontal
+            )
+        ) {
             generateShipPlacementWorker(player, index);
         } else {
             player.playerGameBoard.placeShip(
                 player.name,
                 shipList[index],
                 coordinate,
-                "gray",
-                true
+                "white",
+                horizontal
             );
         }
     }
     function generateShipPlacementWrapper(player) {
         const shipList = player.playerGameBoard.shipList;
         for (let i = 0; i < shipList.length; i++) {
-            allPlacements = generateShipPlacementWorker(player, i);
+            generateShipPlacementWorker(player, i);
         }
     }
     function fillCell(playerName, coordinate, i, color) {
