@@ -330,7 +330,7 @@ const displayHandler = (() => {
                 player.name,
                 shipList[index],
                 coordinate,
-                "white",
+                "gray",
                 true
             );
         }
@@ -365,13 +365,18 @@ const displayHandler = (() => {
         for (let i = 0; i < enemyCells.length; i++) {
             enemyCells[i].addEventListener("click", () => {
                 // Disable attacking same cell by turning off pointer-events
-                enemyCells[i].classList.toggle("inactive");
                 const coordinate = [Math.floor(i / 10 + 1), (i % 10) + 1];
+                enemyCells[i].style.pointerEvents = "none";
                 toggleGameBoard(player2.name);
-                setTimeout(() => displayMessage(`${player2.name}'s turn`), 1000);
+                setTimeout(function () {
+                    if (!player2.playerGameBoard.checkAllShips()) {
+                        displayMessage(`${player2.name}'s turn`);
+                    }
+                }, 1000);
                 fillAttackCell(player2, coordinate);
                 setTimeout(function () {
-                    if (gameHandler.gameLoop()) {
+                    let continueGame = gameHandler.gameLoop();
+                    if (continueGame) {
                         displayMessage(`${gameHandler.player1.name}'s turn`);
                     }
                 }, 2500);
@@ -399,6 +404,7 @@ const displayHandler = (() => {
 
             enemyCells[i].classList.remove("inactive");
             enemyCells[i].style.removeProperty("background-color");
+            enemyCells[i].style.removeProperty("pointer-events");
             enemyCells[i].replaceWith(enemyCells[i].cloneNode());
         }
     }
@@ -414,6 +420,7 @@ const displayHandler = (() => {
         toggleGameBoard(gameHandler.player1.name, gameHandler.player2.name);
         toggleHoverCell(gameHandler.player1, 0, true);
         document.querySelector(".rotate-btn").classList.toggle("inactive");
+        document.querySelector(".new-game-btn").classList.toggle("show");
     });
     return {
         inputPlayerName,
